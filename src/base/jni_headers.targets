@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml"/>
+    <AvailableItemName Include="generate_jni_headers">
+      <Targets>_generate_jni_headers</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask AssemblyName="Microsoft.Build.Tasks.v4.0" TaskFactory="XamlTaskFactory" TaskName="generate_jni_headers">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target AfterTargets="$(generate_jni_headersAfterTargets)" BeforeTargets="$(generate_jni_headersBeforeTargets)" Condition="'@(generate_jni_headers)' != ''" DependsOnTargets="$(generate_jni_headersDependsOn);Computegenerate_jni_headersOutput" Inputs="%(generate_jni_headers.Identity);%(generate_jni_headers.AdditionalDependencies);$(MSBuildProjectFile)" Name="_generate_jni_headers" Outputs="%(generate_jni_headers.Outputs)">
+    <ItemGroup Condition="'@(SelectedFiles)' != ''">
+      <generate_jni_headers Condition="'%(Identity)' != '@(SelectedFiles)'" Remove="@(generate_jni_headers)"/>
+    </ItemGroup>
+    <ItemGroup>
+      <generate_jni_headers_inputs Include="%(generate_jni_headers.AdditionalDependencies)"/>
+    </ItemGroup>
+    <ItemGroup>
+      <generate_jni_headers_tlog Condition="'%(generate_jni_headers.Outputs)' != '' and '%(generate_jni_headers.ExcludedFromBuild)' != 'true'" Include="%(generate_jni_headers.Outputs)">
+        <Source>@(generate_jni_headers, &apos;|&apos;)</Source>
+        <Inputs>@(generate_jni_headers_inputs -&gt; &apos;%(Fullpath)&apos;, &apos;;&apos;)</Inputs>
+      </generate_jni_headers_tlog>
+    </ItemGroup>
+    <Message Importance="High" Text="%(generate_jni_headers.ExecutionDescription)"/>
+    <WriteLinesToFile Condition="'@(generate_jni_headers_tlog)' != '' and '%(generate_jni_headers_tlog.ExcludedFromBuild)' != 'true'" File="$(IntDir)$(ProjectName).write.1.tlog" Lines="^%(generate_jni_headers_tlog.Source);@(generate_jni_headers_tlog-&gt;'%(Fullpath)')"/>
+    <WriteLinesToFile Condition="'@(generate_jni_headers_tlog)' != '' and '%(generate_jni_headers_tlog.ExcludedFromBuild)' != 'true'" File="$(IntDir)$(ProjectName).read.1.tlog" Lines="^%(generate_jni_headers_tlog.Source);%(generate_jni_headers_tlog.Inputs)"/>
+    <generate_jni_headers AdditionalOptions="%(generate_jni_headers.AdditionalOptions)" CommandLineTemplate="%(generate_jni_headers.CommandLineTemplate)" Condition="'@(generate_jni_headers)' != '' and '%(generate_jni_headers.ExcludedFromBuild)' != 'true'" Inputs="%(generate_jni_headers.Identity)"/>
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>$(ComputeLinkInputsTargets);Computegenerate_jni_headersOutput;</ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>$(ComputeLibInputsTargets);Computegenerate_jni_headersOutput;</ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target Condition="'@(generate_jni_headers)' != ''" Name="Computegenerate_jni_headersOutput">
+    <ItemGroup>
+      <generate_jni_headersDirsToMake Condition="'@(generate_jni_headers)' != '' and '%(generate_jni_headers.ExcludedFromBuild)' != 'true'" Include="%(generate_jni_headers.Outputs)"/>
+      <Link Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" Include="%(generate_jni_headersDirsToMake.Identity)"/>
+      <Lib Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" Include="%(generate_jni_headersDirsToMake.Identity)"/>
+      <ImpLib Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" Include="%(generate_jni_headersDirsToMake.Identity)"/>
+    </ItemGroup>
+    <MakeDir Directories="@(generate_jni_headersDirsToMake-&gt;'%(RootDir)%(Directory)')"/>
+  </Target>
+</Project>

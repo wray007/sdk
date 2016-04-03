@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(generate_jni_headersBeforeTargets)' == '' and '$(generate_jni_headersAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <generate_jni_headersBeforeTargets>Midl</generate_jni_headersBeforeTargets>
+    <generate_jni_headersAfterTargets>CustomBuild</generate_jni_headersAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <generate_jni_headersDependsOn Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(generate_jni_headersDependsOn)</generate_jni_headersDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <generate_jni_headers>
+      <CommandLineTemplate>call &quot;$(ProjectDir)..\third_party\cygwin\setup_env.bat&quot; &amp;&amp; set CYGWIN=nontsec&amp;&amp; set OUTDIR=$(OutDir)&amp;&amp; set INPUTPATH=%(FullPath) &amp;&amp; bash -c &quot;\&quot;../base/android/jni_generator/jni_generator.py\&quot; \&quot;--input_file\&quot; \&quot;`cygpath -m \\\&quot;${INPUTPATH}\\\&quot;`\&quot; \&quot;--output_dir\&quot; \&quot;`cygpath -m \\\&quot;${OUTDIR}\\\&quot;`obj/global_intermediate/base/jni\&quot; \&quot;--optimize_generation\&quot; \&quot;0\&quot; \&quot;--jarjar\&quot; \&quot;\&quot;&quot;</CommandLineTemplate>
+      <Outputs>$(OutDir)obj\global_intermediate\base\jni\%(Filename)_jni.h</Outputs>
+      <ExecutionDescription>Generating JNI bindings from %(FullPath)</ExecutionDescription>
+      <AdditionalDependencies>..\base\android\jni_generator\jni_generator.py</AdditionalDependencies>
+    </generate_jni_headers>
+  </ItemDefinitionGroup>
+</Project>
